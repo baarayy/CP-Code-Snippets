@@ -1,0 +1,27 @@
+void dfs(int u ,int p)
+{
+    tin[u] = ++dfn;
+    up[u][0] = p;
+    for(int i = 1 ; i < 29 ; i++) up[u][i] = up[up[u][i - 1]][i - 1];
+    for(auto ch : adj[u]) {
+        if(ch == p) continue;
+        d[ch] = d[u] + 1;
+        dfs(ch , u);
+    }
+    tout[u] = ++dfn;
+}
+bool isAns(int u ,int v)
+{
+    return tin[u] <= tin[v] && tout[u] >= tout[v];
+}
+int LCA(int u ,int v)
+{
+    if(isAns(u , v)) return u;
+    if(isAns(v , u)) return v;
+    for(int i = 28 ; i >= 0 ; i--) {
+        if(!isAns(up[u][i] , v)) {
+            u = up[u][i];
+        }
+    }
+    return up[u][0];
+}
