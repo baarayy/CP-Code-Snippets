@@ -1,3 +1,7 @@
+/ *
+This is a solution for a standard problem that can be solved with parallel binary search 
+problem link: https://szkopul.edu.pl/problemset/problem/7JrCYZ7LhEK4nBR5zbAXpcmM/site/?key=statement
+*/
 #include <bits/stdc++.h>
 #include <ext/numeric>
 #include <ext/pb_ds/assoc_container.hpp>
