@@ -1,0 +1,131 @@
+#include <bits/stdc++.h>
+#include <ext/numeric>
+#include <ext/pb_ds/assoc_container.hpp>
+#define fast cin.tie(0); cin.sync_with_stdio(0);
+#define ll long long
+#define ull unsigned long long
+#define ld long double
+#define oo (ll)1e9
+#define OO (ll)1e16
+#define PI acos(-1)
+#define LL __int128
+using namespace std;
+using namespace __gnu_pbds;
+template<class T> using ordered_set = tree<T, null_type , less<T> , rb_tree_tag , tree_order_statistics_node_update> ;
+template<class T> using ordered_multiset = tree<T, null_type, less_equal<T>,rb_tree_tag, tree_order_statistics_node_update>;
+const ll mod = 1e9 + 7;
+const int MOD = 998244353;
+const ld eps = 1e-6;
+int tt = 1;
+int test;
+template<typename T>
+struct fenwick_tree {
+    int n;
+    vector<T>tree;
+    fenwick_tree() {}
+    fenwick_tree(int _n) {
+        init(_n);
+    }
+    void init(int _n) {
+        n = _n;
+        tree.assign(n + 1 , 0);
+    }
+    void build(const vector<T>&a) {
+        for(int i = 1 ; i <= n ; i++) {
+            int j = i + (i & (-i));
+            tree[i] += a[i - 1];
+            if(j <= n) tree[j] += tree[i];
+        }
+    }
+    void increment(int pos , T val) {
+        for(int i = pos + 1 ; i <= n ; i += (i & (-i))) {
+            tree[i] += val;
+        }
+    }
+    T query(int pos) {
+        T res = 0;
+        for(int i = pos + 1 ; i ; i -= (i & (-i))) {
+            res += tree[i];
+        }
+        return res;
+    }
+    T query(int l ,int r) {
+        return query(r) - query(l - 1);
+    }
+};
+const int N = 3e5 + 5;
+int n , m , k;
+vector<int>stations[N];
+int meteorsNeeded[N] , ans[N] , showers[N][3] , L[N] , R[N];
+fenwick_tree<ll> meteors;
+void update(int l ,int r ,ll delta)
+{
+    if(r < l) {
+        update(0 , r , delta);
+        r = m - 1;
+    }
+    meteors.increment(l , delta);
+    meteors.increment(r + 1 , -delta);
+}
+void solve()
+{
+    cin >> n >> m;
+    for(int i = 0 ; i < m ; i++) {
+        int x;
+        cin >> x;
+        stations[--x].push_back(i);
+    }
+    for(int i = 0 ; i < n ; i++) {
+        cin >> meteorsNeeded[i];
+        ans[i] = oo;
+    }
+    cin >> k;
+    for(int i = 0 ; i < k ; i++) {
+        for(int j = 0 ; j < 3 ; j++) {
+            cin >> showers[i][j];
+            if(j < 2) showers[i][j]--;
+        }
+    }
+    for(int i = 0 ; i < n ; i++) {
+        L[i] = 0;
+        R[i] = k - 1;
+    }
+    while(1) {
+        vector<int>queris[k];
+        bool all_answerd = 1;
+        for(int i = 0 ; i < n ; i++) {
+            if(L[i] > R[i]) continue;
+            all_answerd = 0;
+            queris[(L[i] + R[i]) >> 1].push_back(i);
+        }
+        if(all_answerd) break;
+        meteors.init(m + 5);
+        for(int mid = 0 ; mid < k ; mid++) {
+            update(showers[mid][0] , showers[mid][1] , showers[mid][2]);
+            for(const auto &state : queris[mid]) {
+                ll gathered = 0;
+                for(const auto &station : stations[state]) {
+                    gathered += meteors.query(station);
+                    if(gathered >= OO) break;
+                }
+                if(gathered >= meteorsNeeded[state]) {
+                    ans[state] = min(ans[state] , mid + 1);
+                    R[state] = mid - 1;
+                }
+                else L[state] = mid + 1;
+            }
+        }
+    }
+    for(int i = 0 ; i < n ; i++) {
+        if(ans[i] >= oo) cout << "NIE\n";
+        else cout << ans[i] << '\n';
+    }
+}
+int main()
+{
+    fast
+//    cin >> tt;
+    while(tt--)
+        solve();
+    return 0;
+}
